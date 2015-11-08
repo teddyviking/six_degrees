@@ -8,8 +8,8 @@ module SixDegrees
     def generate_six_degrees_file(tweets, ouput_name)
       set_active_users(tweets)
       set_users_tweets(tweets)
-      set_users_first_connections
-
+      set_users_first_connections(@active_users)
+      set_users_second_connections(@active_users)
 
       output = give_format_file
       IO.write(ouput_name, output)
@@ -28,20 +28,39 @@ module SixDegrees
       @active_users.each {|user| user.get_user_tweets(tweets)}
     end
 
-    def set_users_first_connections
-      @active_users.each do |active_user|
-        user_names = active_user.get_mentioned_users
+    def set_users_first_connections(users)
+      users.each do |user|
+        user_names = user.get_mentioned_users
         possible_users = generate_array_of_users_from_names(user_names)
         possible_users.each do|possible_user| 
-          add_first_connection_to_user(active_user, possible_user)
+          add_first_connection_to_user(user, possible_user)
         end 
+      end
+    end
+
+    def set_users_second_connections(users)
+      users.each do |user|
+        names = user.first_connections
+        f_connections = generate_array_of_users_from_names(names)
+        f_connections.each do |f_connection|
+          f_connection.first_connections.each do |possible_2nd_connection|
+            add_second_connection_to_user(user, possible_2nd_connection)
+          end
+        end
+      end
+    end
+
+
+    def add_second_connection_to_user(user, possible_2nd_connection)
+      if !user.first_connections.include?(possible_2nd_connection) && possible_2nd_connection != user.name && !user.second_connections.include?(possible_2nd_connection)
+        user.second_connections << possible_2nd_connection
       end
     end
 
     def add_first_connection_to_user(user, possible_user)
       mentioned_users = possible_user.get_mentioned_users
       if mentioned_users.include?(user.name)
-        user.first_connections << possible_user.name 
+        user.first_connections << possible_user.name unless user.first_connections.include?(possible_user.name)
       end
     end
 
@@ -58,7 +77,8 @@ module SixDegrees
       output = ""
       @active_users.each do |user|
         output << "#{user.name}\n"
-        output << (user.first_connections.join(", ") + "\n")
+        output << (user.first_connections.sort.join(", ") + "\n")
+        output << (user.second_connections.sort.join(", ") + "\n")
         output << "\n"
       end
       output

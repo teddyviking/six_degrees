@@ -1,0 +1,18 @@
+alberta
+bob, christie
+
+bob
+alberta, duncan, christie
+
+christie
+alberta, bob, emily
+
+duncan
+bob, emily, farid
+
+emily
+duncan, christie
+
+farid
+duncan
+

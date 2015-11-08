@@ -12,7 +12,6 @@ module SixDegrees
 
     def create_tweet(txt_tweet)
       @twitter_class.new(parse_txt_tweet(txt_tweet))
-
     end
 
     def parse_txt_tweet(txt_tweet)

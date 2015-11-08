@@ -7,7 +7,8 @@ module SixDegrees
     end
 
     def get_tweet_mentions
-      #takes the mentions in the text of the tweet
+      mentions = @text.scan(/@\w+/)
+      mentions.map{|mention| mention.gsub(/@/, "")}
     end
   end
 

@@ -1,12 +1,11 @@
 module SixDegrees
   class User
-    attr_accessor :first_connections, :second_connections
+    attr_accessor :connections
     attr_reader :tweets, :name
 
     def initialize(name)
       @name = name
-      @first_connections = []
-      @second_connections = []
+      @connections = Array.new(6) { [] }
     end
 
     def get_user_tweets(tweets)

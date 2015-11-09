@@ -8,8 +8,7 @@ module SixDegrees
     def generate_six_degrees_file(tweets, ouput_name)
       set_active_users(tweets)
       set_users_tweets(tweets)
-      set_users_first_connections(@active_users)
-      set_users_second_connections(@active_users)
+      set_users_connections(@active_users)
 
       output = give_format_file
       IO.write(ouput_name, output)
@@ -28,39 +27,60 @@ module SixDegrees
       @active_users.each {|user| user.get_user_tweets(tweets)}
     end
 
-    def set_users_first_connections(users)
-      users.each do |user|
-        user_names = user.get_mentioned_users
-        possible_users = generate_array_of_users_from_names(user_names)
-        possible_users.each do|possible_user| 
-          add_first_connection_to_user(user, possible_user)
-        end 
+    def set_users_connections(users)
+      n_connection = 0
+      while n_connection <= users.first.connections.size
+        users.each do |user|
+          set_user_n_connections(user, n_connection, users)
+        end
+        n_connection += 1
       end
     end
 
-    def set_users_second_connections(users)
-      users.each do |user|
-        names = user.first_connections
-        f_connections = generate_array_of_users_from_names(names)
-        f_connections.each do |f_connection|
-          f_connection.first_connections.each do |possible_2nd_connection|
-            add_second_connection_to_user(user, possible_2nd_connection)
+    def set_user_n_connections(user, index, users)
+      if index == 0
+        set_user_first_connections(user)
+      else
+        users_left = get_connections_left(user, users)
+        users_left.each do |possible_user|
+          if user_is_n_connection?(user, possible_user, index)
+            
+            user.connections[index] << possible_user.name
           end
         end
       end
     end
 
+    def get_connections_left(user, users)
+      connection_names = user.connections.flatten
+      connections = generate_array_of_users_from_names(connection_names)
+      users_left = users - connections.push(user)
+      users_left
+    end
 
-    def add_second_connection_to_user(user, possible_2nd_connection)
-      if !user.first_connections.include?(possible_2nd_connection) && possible_2nd_connection != user.name && !user.second_connections.include?(possible_2nd_connection)
-        user.second_connections << possible_2nd_connection
+    def user_is_n_connection?(original_user, possible_user, index)
+      output = false
+      original_user_connections = generate_array_of_users_from_names(original_user.connections[index-1])
+      # binding.pry if index == 2 && original_user.name == "christie" 
+
+      original_user_connections.each do |connection|
+        output = true if connection.connections[0].include?(possible_user.name)
       end
+      output
+    end
+
+    def set_user_first_connections(user)
+        user_names = user.get_mentioned_users
+        possible_users = generate_array_of_users_from_names(user_names)
+        possible_users.each do|possible_user| 
+          add_first_connection_to_user(user, possible_user)
+        end 
     end
 
     def add_first_connection_to_user(user, possible_user)
       mentioned_users = possible_user.get_mentioned_users
       if mentioned_users.include?(user.name)
-        user.first_connections << possible_user.name unless user.first_connections.include?(possible_user.name)
+        user.connections[0] << possible_user.name unless user.connections[0].include?(possible_user.name)
       end
     end
 
@@ -77,8 +97,9 @@ module SixDegrees
       output = ""
       @active_users.each do |user|
         output << "#{user.name}\n"
-        output << (user.first_connections.sort.join(", ") + "\n")
-        output << (user.second_connections.sort.join(", ") + "\n")
+        user.connections.each do |n_connections|
+          (output << (n_connections.sort.join(", ") + "\n")) unless n_connections.empty?
+        end
         output << "\n"
       end
       output

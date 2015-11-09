@@ -1,6 +1,7 @@
 alberta
 bob, christie
 duncan, emily
+farid
 
 bob
 alberta, christie, duncan
@@ -9,6 +10,7 @@ emily, farid
 christie
 alberta, bob, emily
 duncan
+farid
 
 duncan
 bob, emily, farid
@@ -21,4 +23,5 @@ alberta, bob, farid
 farid
 duncan
 bob, emily
+alberta, christie
 

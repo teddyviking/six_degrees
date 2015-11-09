@@ -97,7 +97,7 @@ module SixDegrees
 
     def give_format_file
       output = ""
-      @active_users.each do |user|
+      @active_users.sort{|a, b| a.name <=> b.name}.each do |user|
         output << "#{user.name}\n"
         user.connections.each do |n_connections|
           (output << (n_connections.sort.join(", ") + "\n")) unless n_connections.empty?

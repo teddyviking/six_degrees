@@ -31,23 +31,24 @@ module SixDegrees
       n_connection = 0
       while n_connection <= users.first.connections.size
         users.each do |user|
-          set_user_n_connections(user, n_connection, users)
+          set_user_connections(user, n_connection, users)
         end
         n_connection += 1
       end
     end
 
-    def set_user_n_connections(user, index, users)
+    def set_user_connections(user, index, users)
       if index == 0
         set_user_first_connections(user)
       else
-        users_left = get_connections_left(user, users)
-        users_left.each do |possible_user|
-          if user_is_n_connection?(user, possible_user, index)
-            
-            user.connections[index] << possible_user.name
-          end
-        end
+        set_user_left_connections(user, index, users)
+      end
+    end
+
+    def set_user_left_connections(user, index, users)
+      users_left = get_connections_left(user, users)
+      users_left.each do |possible_user|
+        add_n_connection(user, possible_user, index)
       end
     end
 
@@ -55,14 +56,15 @@ module SixDegrees
       connection_names = user.connections.flatten
       connections = generate_array_of_users_from_names(connection_names)
       users_left = users - connections.push(user)
-      users_left
+    end
+
+    def add_n_connection(user, possible_user, index)
+      user.connections[index] << possible_user.name if user_is_n_connection?(user, possible_user, index)
     end
 
     def user_is_n_connection?(original_user, possible_user, index)
       output = false
       original_user_connections = generate_array_of_users_from_names(original_user.connections[index-1])
-      # binding.pry if index == 2 && original_user.name == "christie" 
-
       original_user_connections.each do |connection|
         output = true if connection.connections[0].include?(possible_user.name)
       end
@@ -86,7 +88,7 @@ module SixDegrees
 
 
     def generate_array_of_users_from_names(names)
-      names.map{|name| find_active_user_by_name(name) }
+      names.map{|name| find_active_user_by_name(name) }.compact
     end
 
     def find_active_user_by_name(name)

@@ -10,8 +10,7 @@ module SixDegrees
       set_users_tweets(tweets)
       set_users_connections(@active_users)
 
-      output = give_format_file
-      IO.write(ouput_name, output)
+      output_file(ouput_name, give_format_file)
     end
 
 
@@ -105,6 +104,10 @@ module SixDegrees
         output << "\n"
       end
       output
+    end
+
+    def output_file(ouput_name, output)
+      IO.write(ouput_name, output)
     end
   end
 end

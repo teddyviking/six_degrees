@@ -13,6 +13,7 @@ module SixDegrees
       output_file(ouput_name, give_format_file)
     end
 
+    private
 
     def set_active_users(tweets)
       tweets.each do |tweet|
